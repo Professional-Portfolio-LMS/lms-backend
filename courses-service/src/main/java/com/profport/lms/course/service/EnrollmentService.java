@@ -3,6 +3,7 @@ package com.profport.lms.course.service;
 import com.profport.lms.course.model.Course;
 import com.profport.lms.course.model.Enrollment;
 import com.profport.lms.course.model.User;
+import com.profport.lms.course.model.UserRole;
 import com.profport.lms.course.repository.CourseRepository;
 import com.profport.lms.course.repository.EnrollmentRepository;
 import com.profport.lms.course.repository.UserRepository;
@@ -29,7 +30,7 @@ public class EnrollmentService {
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        if (!student.getRole().equals("STUDENT")) {
+        if (!student.getRole().equals(UserRole.STUDENT)) {
             throw new RuntimeException("Only students can be enrolled");
         }
 

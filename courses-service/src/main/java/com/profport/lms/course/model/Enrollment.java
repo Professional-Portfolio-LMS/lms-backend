@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "enrollments", uniqueConstraints = {
+@Table(name = "enrollment", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"student_id", "course_id"})
 })
 @Data
