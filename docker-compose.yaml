@@ -16,25 +16,11 @@ services:
       timeout: 5s
       retries: 5
 
-  discovery:
-    build: ./discovery-server
-    container_name: discovery-server
-    ports:
-      - "8761:8761"
-    depends_on:
-      postgres:
-        condition: service_healthy
-
   gateway:
     build: ./gateway
     container_name: api-gateway
-    environment:
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery:8761/eureka
     ports:
       - "8080:8080"
-    depends_on:
-      discovery:
-        condition: service_healthy
 
   user:
     build: ./user-service
@@ -43,13 +29,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lms
       SPRING_DATASOURCE_USERNAME: lms_user
       SPRING_DATASOURCE_PASSWORD: lms_pass
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery:8761/eureka
     ports:
       - "8081:8081"
     depends_on:
       postgres:
-        condition: service_healthy
-      discovery:
         condition: service_healthy
       gateway:
         condition: service_healthy
@@ -61,13 +44,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lms
       SPRING_DATASOURCE_USERNAME: lms_user
       SPRING_DATASOURCE_PASSWORD: lms_pass
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery:8761/eureka
     ports:
       - "8082:8082"
     depends_on:
       postgres:
-        condition: service_healthy
-      discovery:
         condition: service_healthy
       gateway:
         condition: service_healthy
