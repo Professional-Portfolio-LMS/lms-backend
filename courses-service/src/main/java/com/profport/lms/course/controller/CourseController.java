@@ -3,7 +3,9 @@ package com.profport.lms.course.controller;
 import com.profport.lms.course.dto.CourseRequestDTO;
 import com.profport.lms.course.dto.CourseResponseDTO;
 import com.profport.lms.course.dto.UserResponseDTO;
+import com.profport.lms.course.model.Course;
 import com.profport.lms.course.model.User;
+import com.profport.lms.course.security.JwtUtil;
 import com.profport.lms.course.service.CourseService;
 import com.profport.lms.course.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ public class CourseController {
 
     private final CourseService courseService;
     private final EnrollmentService enrollmentService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping
     public CourseResponseDTO createCourse(@RequestBody CourseRequestDTO dto) {
@@ -48,7 +51,7 @@ public class CourseController {
     @PostMapping("/{id}/enroll")
     public void enrollStudent(
             @PathVariable UUID id,
-            @RequestParam UUID studentId  // or from JWT/auth later
+            @RequestParam UUID studentId // or from JWT/auth later
     ) {
         enrollmentService.enrollStudent(id, studentId);
     }
@@ -60,4 +63,11 @@ public class CourseController {
                 .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getRole()))
                 .toList();
     }
+
+    @GetMapping("/student/enrolled")
+    public List<Course> getCoursesForCurrentStudent(@RequestHeader("Authorization") String authHeader) {
+        UUID studentId = jwtUtil.getUserIdFromToken(authHeader.replace("Bearer ", ""));
+        return enrollmentService.getCoursesForStudent(studentId);
+    }
+
 }

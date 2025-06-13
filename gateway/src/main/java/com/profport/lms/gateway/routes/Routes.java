@@ -21,4 +21,11 @@ public class Routes {
         return GatewayRouterFunctions.route("courses_service")
                 .route(RequestPredicates.path("/courses/**"), HandlerFunctions.http("http://course:8082")).build();
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> assignmentsServiceRoute() {
+        return GatewayRouterFunctions.route("assignments_service")
+                .route(RequestPredicates.path("/assignments/**"), HandlerFunctions.http("http://assignment:8083"))
+                .build();
+    }
 }

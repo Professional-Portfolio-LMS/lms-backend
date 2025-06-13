@@ -36,7 +36,9 @@ public class EnrollmentService {
 
         // Avoid duplicate enrollments
         enrollmentRepository.findByStudentAndCourse(student, course)
-                .ifPresent(e -> { throw new RuntimeException("Student already enrolled"); });
+                .ifPresent(e -> {
+                    throw new RuntimeException("Student already enrolled");
+                });
 
         Enrollment enrollment = Enrollment.builder()
                 .course(course)
@@ -54,5 +56,9 @@ public class EnrollmentService {
                 .stream()
                 .map(Enrollment::getStudent)
                 .toList();
+    }
+
+    public List<Course> getCoursesForStudent(UUID studentId) {
+        return enrollmentRepository.findCoursesByStudentId(studentId);
     }
 }

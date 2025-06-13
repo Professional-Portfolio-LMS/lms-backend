@@ -54,6 +54,25 @@ services:
       user:
         condition: service_healthy
 
+  assignment:
+    build: ./assignments-service
+    container_name: assignments-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lms
+      SPRING_DATASOURCE_USERNAME: lms_user
+      SPRING_DATASOURCE_PASSWORD: lms_pass
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      user:
+        condition: service_healthy
+      course:
+        condition: service_healthy
+
 volumes:
   postgres_data:
 

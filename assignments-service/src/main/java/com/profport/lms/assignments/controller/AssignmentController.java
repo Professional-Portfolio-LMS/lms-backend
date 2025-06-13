@@ -26,9 +26,10 @@ public class AssignmentController {
 
     @PostMapping
     public AssignmentResponseDTO create(
-        @RequestPart AssignmentRequestDTO dto,
-        @RequestPart(required = false) List<MultipartFile> files
-    ) {
+            @RequestPart AssignmentRequestDTO dto,
+            @RequestPart(required = false) List<MultipartFile> files) {
+        System.out.println("Skibidi1 " + dto);
+        System.out.println("Skibidi2" + files);
         return service.createAssignment(dto, files != null ? files : List.of());
     }
 
@@ -37,4 +38,3 @@ public class AssignmentController {
         return service.getByCourse(courseId);
     }
 }
-
