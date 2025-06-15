@@ -6,6 +6,8 @@ import com.profport.lms.user.dto.UserRequestDTO;
 import com.profport.lms.user.dto.UserResponseDTO;
 import com.profport.lms.user.model.User;
 import com.profport.lms.user.repository.UserRepository;
+import com.profport.lms.user.security.JwtUtil;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class UserService {
 
     private final UserRepository userRepo;
     private final PasswordEncoder encoder;
+    private final JwtUtil jwtUtil;
 
     public UserResponseDTO register(UserRequestDTO dto) {
         User user = User.builder()
@@ -35,7 +38,9 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         if (!encoder.matches(dto.getPassword(), user.getPwHash()))
             throw new RuntimeException("Bad credentials");
-        return new LoginResponseDTO("dummy-token"); // later: generate JWT
+
+        String token = jwtUtil.generateToken(user.getId(), user.getName(), user.getEmail(), user.getRole());
+        return new LoginResponseDTO(token);
     }
 
     public List<UserResponseDTO> listAll() {

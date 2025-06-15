@@ -1,5 +1,7 @@
 package com.profport.lms.course.service;
 
+import com.profport.lms.course.dto.CourseResponseDTO;
+import com.profport.lms.course.dto.InstructorResponseDTO;
 import com.profport.lms.course.model.Course;
 import com.profport.lms.course.model.Enrollment;
 import com.profport.lms.course.model.User;
@@ -36,7 +38,9 @@ public class EnrollmentService {
 
         // Avoid duplicate enrollments
         enrollmentRepository.findByStudentAndCourse(student, course)
-                .ifPresent(e -> { throw new RuntimeException("Student already enrolled"); });
+                .ifPresent(e -> {
+                    throw new RuntimeException("Student already enrolled");
+                });
 
         Enrollment enrollment = Enrollment.builder()
                 .course(course)
@@ -53,6 +57,31 @@ public class EnrollmentService {
         return enrollmentRepository.findByCourse(course)
                 .stream()
                 .map(Enrollment::getStudent)
+                .toList();
+    }
+
+    public List<CourseResponseDTO> getCoursesForStudent(UUID studentId) {
+        List<Course> courses = enrollmentRepository.findCoursesByStudentId(studentId);
+
+        return courses.stream()
+                .map(course -> {
+                    User instructor = course.getInstructor();
+
+                    InstructorResponseDTO instructorDTO = InstructorResponseDTO.builder()
+                            .id(instructor.getId())
+                            .name(instructor.getName())
+                            .email(instructor.getEmail())
+                            .build();
+
+                    return CourseResponseDTO.builder()
+                            .id(course.getId())
+                            .title(course.getTitle())
+                            .description(course.getDescription())
+                            .category(course.getCategory())
+                            .instructor(instructorDTO)
+                            .createdAt(course.getCreatedAt())
+                            .build();
+                })
                 .toList();
     }
 }

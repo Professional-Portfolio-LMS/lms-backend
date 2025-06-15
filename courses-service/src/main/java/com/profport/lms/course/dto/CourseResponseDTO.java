@@ -1,6 +1,7 @@
 package com.profport.lms.course.dto;
 
 import com.profport.lms.course.model.CourseCategory;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,6 +15,6 @@ public class CourseResponseDTO {
     private String title;
     private String description;
     private CourseCategory category;
-    private UUID instructorId;
+    private InstructorResponseDTO instructor;
     private Instant createdAt;
 }
