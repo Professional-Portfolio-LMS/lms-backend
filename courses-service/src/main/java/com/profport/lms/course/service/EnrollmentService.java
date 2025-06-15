@@ -1,5 +1,7 @@
 package com.profport.lms.course.service;
 
+import com.profport.lms.course.dto.CourseResponseDTO;
+import com.profport.lms.course.dto.InstructorResponseDTO;
 import com.profport.lms.course.model.Course;
 import com.profport.lms.course.model.Enrollment;
 import com.profport.lms.course.model.User;
@@ -58,7 +60,28 @@ public class EnrollmentService {
                 .toList();
     }
 
-    public List<Course> getCoursesForStudent(UUID studentId) {
-        return enrollmentRepository.findCoursesByStudentId(studentId);
+    public List<CourseResponseDTO> getCoursesForStudent(UUID studentId) {
+        List<Course> courses = enrollmentRepository.findCoursesByStudentId(studentId);
+
+        return courses.stream()
+                .map(course -> {
+                    User instructor = course.getInstructor();
+
+                    InstructorResponseDTO instructorDTO = InstructorResponseDTO.builder()
+                            .id(instructor.getId())
+                            .name(instructor.getName())
+                            .email(instructor.getEmail())
+                            .build();
+
+                    return CourseResponseDTO.builder()
+                            .id(course.getId())
+                            .title(course.getTitle())
+                            .description(course.getDescription())
+                            .category(course.getCategory())
+                            .instructor(instructorDTO)
+                            .createdAt(course.getCreatedAt())
+                            .build();
+                })
+                .toList();
     }
 }

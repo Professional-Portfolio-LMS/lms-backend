@@ -2,6 +2,7 @@ package com.profport.lms.course.service;
 
 import com.profport.lms.course.dto.CourseRequestDTO;
 import com.profport.lms.course.dto.CourseResponseDTO;
+import com.profport.lms.course.dto.InstructorResponseDTO;
 import com.profport.lms.course.model.User;
 import com.profport.lms.course.repository.CourseRepository;
 import com.profport.lms.course.model.Course;
@@ -64,12 +65,20 @@ public class CourseService {
     }
 
     private CourseResponseDTO mapToResponse(Course course) {
+        User instructor = course.getInstructor();
+
+        InstructorResponseDTO instructorDTO = InstructorResponseDTO.builder()
+                .id(instructor.getId())
+                .name(instructor.getName())
+                .email(instructor.getEmail())
+                .build();
+
         return CourseResponseDTO.builder()
                 .id(course.getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
                 .category(course.getCategory())
-                .instructorId(course.getInstructor().getId())
+                .instructor(instructorDTO)
                 .createdAt(course.getCreatedAt())
                 .build();
     }

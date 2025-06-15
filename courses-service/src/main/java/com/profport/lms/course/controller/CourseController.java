@@ -3,7 +3,6 @@ package com.profport.lms.course.controller;
 import com.profport.lms.course.dto.CourseRequestDTO;
 import com.profport.lms.course.dto.CourseResponseDTO;
 import com.profport.lms.course.dto.UserResponseDTO;
-import com.profport.lms.course.model.Course;
 import com.profport.lms.course.model.User;
 import com.profport.lms.course.security.JwtUtil;
 import com.profport.lms.course.service.CourseService;
@@ -65,7 +64,7 @@ public class CourseController {
     }
 
     @GetMapping("/student/enrolled")
-    public List<Course> getCoursesForCurrentStudent(@RequestHeader("Authorization") String authHeader) {
+    public List<CourseResponseDTO> getCoursesForCurrentStudent(@RequestHeader("Authorization") String authHeader) {
         UUID studentId = jwtUtil.getUserIdFromToken(authHeader.replace("Bearer ", ""));
         return enrollmentService.getCoursesForStudent(studentId);
     }

@@ -1,7 +1,6 @@
 package com.profport.lms.assignments.dto;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 import com.profport.lms.assignments.model.AssignmentType;
@@ -16,11 +15,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AssignmentRequestDTO {
-    private UUID courseId;
+    private UUID courseId;  
     private AssignmentType type;
     private String title;
     private String description;
     private Instant dueDate;
     private Integer maxScore;
-    private List<String> fileUrls; // pre-uploaded file URLs (e.g. to S3)
+    // private List<String> fileUrls; // pre-uploaded file URLs (e.g. to S3)
 }
