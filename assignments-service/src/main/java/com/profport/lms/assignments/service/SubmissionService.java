@@ -1,10 +1,18 @@
 package com.profport.lms.assignments.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.profport.lms.assignments.dto.SubmissionRequestDTO;
@@ -16,6 +24,7 @@ import com.profport.lms.assignments.model.SubmissionFile;
 import com.profport.lms.assignments.repository.AssignmentRepository;
 import com.profport.lms.assignments.repository.SubmissionFileRepository;
 import com.profport.lms.assignments.repository.SubmissionRepository;
+import com.profport.lms.assignments.util.MultipartInputStreamFileResource;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,32 +34,47 @@ public class SubmissionService {
 
     private final SubmissionRepository submissionRepo;
     private final SubmissionFileRepository submissionFileRepo;
-    @Autowired
-    private AssignmentRepository assignmentRepo;
+    private final AssignmentRepository assignmentRepo;
+    private final RestTemplate restTemplate;
+    private final String contentServiceUrl = "http://gateway:8080/content/upload";
 
-    public SubmissionResponseDTO submit(UUID assignmentId, UUID studentId, SubmissionRequestDTO dto, List<MultipartFile> files) {
-        Assignment assignment = assignmentRepo.findById(assignmentId)
+    public SubmissionResponseDTO submit(SubmissionRequestDTO dto, List<MultipartFile> files) throws IOException {
+        Assignment assignment = assignmentRepo.findById(dto.getAssignmentId())
                 .orElseThrow(() -> new RuntimeException("Assignment not found"));
 
+        List<MultipartFile> safeFiles = files != null ? files : List.of();
+
         Submission submission = submissionRepo.save(Submission.builder()
-                .assignment(assignment)  
-                .studentId(studentId)
+                .assignment(assignment)
+                .studentId(dto.getStudentId())
                 .comment(dto.getComment())
                 .build());
 
-        for (MultipartFile file : files) {
-            String url = uploadToS3(file);
+        List<String> fileUrls = new ArrayList<>();
+
+        for (MultipartFile file : safeFiles) {
+            String fileUrl = uploadViaContentService(file);
             submissionFileRepo.save(SubmissionFile.builder()
                     .submission(submission)
-                    .fileUrl(url)
+                    .fileUrl(fileUrl)
                     .build());
+            fileUrls.add(fileUrl);
         }
 
-        return SubmissionMapper.toDTO(submission);
+        return SubmissionMapper.toDTO(submission, fileUrls);
     }
 
-    private String uploadToS3(MultipartFile file) {
-        return "https://s3.bucket/" + file.getOriginalFilename();
+    private String uploadViaContentService(MultipartFile file) throws IOException {
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", new MultipartInputStreamFileResource(file));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(contentServiceUrl, requestEntity, String.class);
+
+        return response.getBody();
     }
 }
-

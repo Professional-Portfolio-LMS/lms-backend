@@ -1,6 +1,6 @@
 package com.profport.lms.assignments.mapper;
 
-import java.util.Collections;
+import java.util.List;
 
 import com.profport.lms.assignments.dto.AssignmentRequestDTO;
 import com.profport.lms.assignments.dto.AssignmentResponseDTO;
@@ -18,7 +18,7 @@ public class AssignmentMapper {
                 .build();
     }
 
-    public static AssignmentResponseDTO toDTO(Assignment assignment) {
+    public static AssignmentResponseDTO toDTO(Assignment assignment, List<String> fileUrls) {
         return AssignmentResponseDTO.builder()
                 .id(assignment.getId())
                 .courseId(assignment.getCourseId())
@@ -28,7 +28,7 @@ public class AssignmentMapper {
                 .dueDate(assignment.getDueDate())
                 .maxScore(assignment.getMaxScore())
                 .createdAt(assignment.getCreatedAt())
-                .fileUrls(Collections.emptyList()) // or populate if needed
+                .fileUrls(fileUrls) // or populate if needed
                 .build();
     }
 }

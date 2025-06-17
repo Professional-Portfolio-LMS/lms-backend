@@ -37,7 +37,4 @@ public class Submission {
 
     @Column(columnDefinition = "TEXT")
     private String instructorComments;
-
-    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubmissionFile> files;
 }
