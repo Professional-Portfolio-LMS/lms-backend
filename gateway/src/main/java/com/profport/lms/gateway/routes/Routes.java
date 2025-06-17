@@ -25,7 +25,17 @@ public class Routes {
     @Bean
     public RouterFunction<ServerResponse> assignmentsServiceRoute() {
         return GatewayRouterFunctions.route("assignments_service")
-                .route(RequestPredicates.path("/assignments/**"), HandlerFunctions.http("http://assignment:8083"))
+                .route(
+                        RequestPredicates.path("/assignments/**")
+                                .or(RequestPredicates.path("/submissions/**")),
+                        HandlerFunctions.http("http://assignment:8083"))
+                .build();
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> contentServiceRoute() {
+        return GatewayRouterFunctions.route("content_service")
+                .route(RequestPredicates.path("/content/**"), HandlerFunctions.http("http://content:8084"))
                 .build();
     }
 }

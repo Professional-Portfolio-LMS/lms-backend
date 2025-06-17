@@ -1,5 +1,6 @@
 package com.profport.lms.assignments.controller;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -35,7 +36,7 @@ public class AssignmentController {
             @RequestParam String description,
             @RequestParam String dueDate,
             @RequestParam Integer maxScore,
-            @RequestPart(required = false) List<MultipartFile> files) {
+            @RequestPart(required = false) List<MultipartFile> files) throws IOException {
 
         AssignmentRequestDTO dto = AssignmentRequestDTO.builder()
                 .courseId(courseId)
@@ -52,5 +53,10 @@ public class AssignmentController {
     @GetMapping("/course/{courseId}")
     public List<AssignmentResponseDTO> byCourse(@PathVariable UUID courseId) {
         return service.getByCourse(courseId);
+    }
+
+    @GetMapping("/course/{courseId}/assignment/{assignmentId}")
+    public AssignmentResponseDTO byCourseAndAssignmentId(@PathVariable UUID courseId, @PathVariable UUID assignmentId) {
+        return service.getByCourseAndAssignment(courseId, assignmentId);
     }
 }
