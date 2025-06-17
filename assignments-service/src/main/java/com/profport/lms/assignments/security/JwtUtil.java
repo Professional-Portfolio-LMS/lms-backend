@@ -17,7 +17,7 @@ import java.util.UUID;
 public class JwtUtil {
 
     private final long EXPIRATION = 1000 * 60 * 60 * 24; // 24 hours
-    
+
     @Value("${jwt.secret}")
     private String secret;
 
@@ -55,3 +55,4 @@ public class JwtUtil {
         return UUID.fromString(extractClaims(token).getSubject());
     }
 }
+
