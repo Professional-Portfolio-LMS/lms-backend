@@ -56,4 +56,10 @@ public class SubmissionController {
         return service.getSubmissions(courseId, assignmentId);
     }
 
+    @GetMapping("{courseId}/{assignmentId}/{submissionId}")
+    public SubmissionResponseDTO getSpecificSubmission(@PathVariable UUID courseId, @PathVariable UUID assignmentId,
+            @PathVariable UUID submissionId) {
+        return service.getSpecificSubmission(courseId, assignmentId, submissionId);
+    }
+
 }
