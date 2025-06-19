@@ -23,41 +23,46 @@ public class CourseController {
     private final JwtUtil jwtUtil;
 
     @PostMapping
-    public CourseResponseDTO createCourse(@RequestBody CourseRequestDTO dto) {
-        return courseService.createCourse(dto);
+    public CourseResponseDTO createCourse(
+            @RequestBody CourseRequestDTO dto,
+            @RequestHeader("Authorization") String authHeader) {
+
+        UUID instructorId = jwtUtil.getUserIdFromToken(authHeader.replace("Bearer ", ""));
+        return courseService.createCourse(dto, instructorId);
     }
+
 
     @GetMapping
     public List<CourseResponseDTO> getAllCourses() {
         return courseService.getAllCourses();
     }
 
-    @GetMapping("/{id}")
-    public CourseResponseDTO getCourse(@PathVariable UUID id) {
-        return courseService.getCourseById(id);
+    @GetMapping("/{courseId}")
+    public CourseResponseDTO getCourse(@PathVariable UUID courseId) {
+        return courseService.getCourseById(courseId);
     }
 
-    @PutMapping("/{id}")
-    public CourseResponseDTO updateCourse(@PathVariable UUID id, @RequestBody CourseRequestDTO dto) {
-        return courseService.updateCourse(id, dto);
+    @PutMapping("/{courseId}")
+    public CourseResponseDTO updateCourse(@PathVariable UUID courseId, @RequestBody CourseRequestDTO dto) {
+        return courseService.updateCourse(courseId, dto);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteCourse(@PathVariable UUID id) {
-        courseService.deleteCourse(id);
+    @DeleteMapping("/{courseId}")
+    public void deleteCourse(@PathVariable UUID courseId) {
+        courseService.deleteCourse(courseId);
     }
 
-    @PostMapping("/{id}/enroll")
+    @PostMapping("/{courseId}/enroll")
     public void enrollStudent(
-            @PathVariable UUID id,
+            @PathVariable UUID courseId,
             @RequestParam UUID studentId // or from JWT/auth later
     ) {
-        enrollmentService.enrollStudent(id, studentId);
+        enrollmentService.enrollStudent(courseId, studentId);
     }
 
-    @GetMapping("/{id}/students")
-    public List<UserResponseDTO> getEnrolledStudents(@PathVariable UUID id) {
-        List<User> students = enrollmentService.getEnrolledStudents(id);
+    @GetMapping("/{courseId}/students")
+    public List<UserResponseDTO> getEnrolledStudents(@PathVariable UUID courseId) {
+        List<User> students = enrollmentService.getEnrolledStudents(courseId);
         return students.stream()
                 .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getRole()))
                 .toList();
@@ -65,8 +70,14 @@ public class CourseController {
 
     @GetMapping("/student/enrolled")
     public List<CourseResponseDTO> getCoursesForCurrentStudent(@RequestHeader("Authorization") String authHeader) {
-        UUID studentId = jwtUtil.getUserIdFromToken(authHeader.replace("Bearer ", ""));
-        return enrollmentService.getCoursesForStudent(studentId);
+        UUID userId = jwtUtil.getUserIdFromToken(authHeader.replace("Bearer ", ""));
+        return enrollmentService.getCoursesForStudent(userId);
+    }
+
+    @GetMapping("/instructor/instructing")
+    public List<CourseResponseDTO> getCoursesForCurrentInstructor(@RequestHeader("Authorization") String authHeader) {
+        UUID userId = jwtUtil.getUserIdFromToken(authHeader.replace("Bearer ", ""));
+        return courseService.getCoursesForInstructor(userId);
     }
 
 }
