@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class SubmissionResponseDTO {
     private UUID id;
     private UUID assignmentId;
-    private UUID studentId;
+    private UserResponseDTO student;
     private String comment;
     private Instant submittedAt;
     private Float grade;
