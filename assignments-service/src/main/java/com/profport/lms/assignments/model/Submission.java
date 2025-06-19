@@ -33,6 +33,8 @@ public class Submission {
     @CreationTimestamp
     private Instant submittedAt;
 
+    private Instant gradedAt;
+
     private Float grade;
 
     @Column(columnDefinition = "TEXT")
