@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -46,6 +47,13 @@ public class SubmissionController {
                 .build();
 
         return service.submit(dto, files != null ? files : List.of());
+    }
+
+    @GetMapping("{courseId}/{assignmentId}")
+    public List<SubmissionResponseDTO> getSubmissions(
+            @PathVariable UUID courseId,
+            @PathVariable UUID assignmentId) {
+        return service.getSubmissions(courseId, assignmentId);
     }
 
 }

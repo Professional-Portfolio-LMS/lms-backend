@@ -3,6 +3,7 @@ package com.profport.lms.assignments.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -63,6 +64,24 @@ public class SubmissionService {
 
         return SubmissionMapper.toDTO(submission, fileUrls);
     }
+
+    public List<SubmissionResponseDTO> getSubmissions(UUID courseId, UUID assignmentId) {
+        // Ensure assignment exists and belongs to the course
+        Assignment assignment = assignmentRepo.findByIdAndCourseId(assignmentId, courseId)
+            .orElseThrow(() -> new RuntimeException("Assignment not found for given course"));
+
+        List<Submission> submissions = submissionRepo.findByAssignmentId(assignmentId);
+
+        return submissions.stream()
+            .map(sub -> {
+                List<String> fileUrls = submissionFileRepo.findBySubmissionId(sub.getId()).stream()
+                    .map(SubmissionFile::getFileUrl)
+                    .toList();
+                return SubmissionMapper.toDTO(sub, fileUrls);
+            })
+            .toList();
+    }
+
 
     private String uploadViaContentService(MultipartFile file) throws IOException {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
