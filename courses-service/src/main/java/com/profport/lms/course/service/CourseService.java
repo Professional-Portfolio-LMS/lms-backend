@@ -3,6 +3,7 @@ package com.profport.lms.course.service;
 import com.profport.lms.course.dto.CourseRequestDTO;
 import com.profport.lms.course.dto.CourseResponseDTO;
 import com.profport.lms.course.dto.InstructorResponseDTO;
+import com.profport.lms.course.mapper.CourseMapper;
 import com.profport.lms.course.model.User;
 import com.profport.lms.course.repository.CourseRepository;
 import com.profport.lms.course.model.Course;
@@ -21,8 +22,8 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
 
-    public CourseResponseDTO createCourse(CourseRequestDTO dto) {
-        User instructor = userRepository.findById(dto.getInstructorId())
+    public CourseResponseDTO createCourse(CourseRequestDTO dto, UUID instructorId) {
+        User instructor = userRepository.findById(instructorId)
                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
 
         Course course = Course.builder()
@@ -43,13 +44,13 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    public CourseResponseDTO getCourseById(UUID id) {
-        return mapToResponse(courseRepository.findById(id)
+    public CourseResponseDTO getCourseById(UUID courseId) {
+        return mapToResponse(courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found")));
     }
 
-    public CourseResponseDTO updateCourse(UUID id, CourseRequestDTO dto) {
-        Course course = courseRepository.findById(id)
+    public CourseResponseDTO updateCourse(UUID courseId, CourseRequestDTO dto) {
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
         course.setTitle(dto.getTitle());
@@ -60,8 +61,15 @@ public class CourseService {
         return mapToResponse(updated);
     }
 
-    public void deleteCourse(UUID id) {
-        courseRepository.deleteById(id);
+    public void deleteCourse(UUID courseId) {
+        courseRepository.deleteById(courseId);
+    }
+
+    public List<CourseResponseDTO> getCoursesForInstructor(UUID instructorId) {
+        List<Course> courses = courseRepository.findByInstructor_Id(instructorId);
+        return courses.stream()
+                .map(CourseMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     private CourseResponseDTO mapToResponse(Course course) {
